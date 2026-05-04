@@ -8,6 +8,13 @@ let timer = [0,0,0];
 let interval = null;
 let timerRunning = false;
 let errors = 0;
+const texts = [
+    "This is the first paragraph, start typing.",
+    "Today is sunday and I'm working on this assignment.",
+    "Try to type as fast as possible without making any mistakes.",
+    "I like Pokemon and I should start playing the games again.",
+    "I don't know what other paragraph to type, so this is the last one.",
+]
 
 
 // Add leading zero to numbers 9 or below (purely for aesthetics):
@@ -48,11 +55,11 @@ function runTimer(){
 function matchText(){
     //save the text
     let typedText = testArea.value;
-
+    let currentText = document.querySelector("#origin-text p").innerHTML;
     //check while typing
-    let partial = originText.substring(0, typedText.length);
+    let partial = currentText.substring(0, typedText.length);
 
-    if(typedText === originText){
+    if(typedText === currentText){
         clearInterval(interval);
         timerRunning = false;
         //change color
@@ -78,13 +85,18 @@ function start(){
 
 // Reset everything:
 function reset(){
+    //reset all variables
     clearInterval(interval);
     interval = null;
     timer = [0,0,0];
     timerRunning = false;
     testArea.value = "";
     theTimer.innerHTML = "00:00:00";
+    //reset color to grey
     testWrapper.style.borderColor = "grey";
+    //add randomizer and change the texts
+    let randomIndex = Math.floor(Math.random() * texts.length);
+    document.querySelector("#origin-text p").innerHTML = texts[randomIndex];
 }
 
 // Event listeners for keyboard input and the reset button:
