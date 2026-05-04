@@ -48,9 +48,23 @@ function runTimer(){
 function matchText(){
     //save the text
     let typedText = testArea.value;
+
+    //check while typing
+    let partial = originText.substring(0, typedText.length);
+
     if(typedText === originText){
         clearInterval(interval);
         timerRunning = false;
+        //change color
+        testWrapper.style.borderColor = "green";
+        //save score
+        saveScores();
+    }else if(typedText === partial){
+        //change color while user is typing correctly
+        testWrapper.style.borderColor = "blue";
+    }else{
+        //change color when user types a mistake
+        testWrapper.style.borderColor = "red";
     }
 }
 
@@ -70,9 +84,46 @@ function reset(){
     timerRunning = false;
     testArea.value = "";
     theTimer.innerHTML = "00:00:00";
+    testWrapper.style.borderColor = "grey";
 }
 
 // Event listeners for keyboard input and the reset button:
-testArea.addEventListener("keypress", start);
-testArea.addEventListener("keyup", matchText);
-resetButton.addEventListener("click", reset);
+testArea.addEventListener("keypress", start); //starts timer while typing
+testArea.addEventListener("keyup", matchText); //check each typed letter
+resetButton.addEventListener("click", reset); //reset after clicking Start over
+
+// Saving the scores
+function saveScores(){
+    //save scores or return empty array
+    let scores = JSON.parse(localStorage.getItem("scores")) || [];
+    
+    let time = theTimer.innerHTML;
+
+    //convert to seconds so we can sort by fastest
+    let parts = time.split(":");
+    let seconds = parts[0]* 60 + parts[1]*1 + parts[2]/100;
+
+    //add the score
+    scores.push({
+        time: time,
+        seconds: seconds
+    });
+    //sort, fastest first and keep top 3
+    scores.sort((a,b) => a.seconds - b.seconds);
+    scores = scores.slice(0,3);
+
+    localStorage.setItem("scores", JSON.stringify(scores));
+    displayScores();
+
+}
+//display the scores
+function displayScores(){
+    let scores = JSON.parse(localStorage.getItem("scores")) || [];
+    let scoresDiv = document.querySelector("#scores");
+    let output = "";
+
+    scores.forEach(score => {
+        output+= score.time + "<br>";
+    });
+    scoresDiv.innerHTML = output;
+}
