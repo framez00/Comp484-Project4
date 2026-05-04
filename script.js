@@ -3,14 +3,16 @@ const testArea = document.querySelector("#test-area");
 const originText = document.querySelector("#origin-text p").innerHTML;
 const resetButton = document.querySelector("#reset");
 const theTimer = document.querySelector(".timer");
+const metrics = document.querySelector("#metrics");
 
 let timer = [0,0,0];
 let interval = null;
 let timerRunning = false;
 let errors = 0;
+let lastCorrect = true; //checks if the last character was typed correctly
 const texts = [
     "This is the first paragraph, start typing.",
-    "Today is sunday and I'm working on this assignment.",
+    "Today is Sunday and I'm working on this assignment.",
     "Try to type as fast as possible without making any mistakes.",
     "I like Pokemon and I should start playing the games again.",
     "I don't know what other paragraph to type, so this is the last one.",
@@ -64,14 +66,23 @@ function matchText(){
         timerRunning = false;
         //change color
         testWrapper.style.borderColor = "green";
+        //wmp
+        let wpm = calculateWPM();
+        metrics.innerHTML = "Metrics: WPM: " + wpm + " | Errors: " + errors;
         //save score
         saveScores();
     }else if(typedText === partial){
         //change color while user is typing correctly
         testWrapper.style.borderColor = "blue";
+        lastCorrect = true;
     }else{
         //change color when user types a mistake
         testWrapper.style.borderColor = "red";
+        //check if last character was correct so it doesnt count too many errors
+        if(lastCorrect){
+            errors++;
+        }
+        lastCorrect = false;
     }
 }
 
@@ -92,6 +103,8 @@ function reset(){
     timerRunning = false;
     testArea.value = "";
     theTimer.innerHTML = "00:00:00";
+    errors = 0;
+    lastCorrect = true;
     //reset color to grey
     testWrapper.style.borderColor = "grey";
     //add randomizer and change the texts
@@ -100,7 +113,7 @@ function reset(){
 }
 
 // Event listeners for keyboard input and the reset button:
-testArea.addEventListener("keypress", start); //starts timer while typing
+testArea.addEventListener("keydown", start); //starts timer while typing
 testArea.addEventListener("keyup", matchText); //check each typed letter
 resetButton.addEventListener("click", reset); //reset after clicking Start over
 
@@ -137,5 +150,18 @@ function displayScores(){
     scores.forEach(score => {
         output+= score.time + "<br>";
     });
-    scoresDiv.innerHTML = output;
+    scoresDiv.innerHTML = "Scores:<br>" + output;
 }
+
+//calculating wpm
+function calculateWPM(){
+    let currentText = document.querySelector("#origin-text p").innerHTML;
+    let totalCharacters = testArea.value.length;
+    let totalSeconds = timer[0] * 60 + timer[1] + timer[2] / 100;
+    let wpm = (totalCharacters / 5) / (totalSeconds / 60);
+    return Math.round(wpm);
+}
+
+//to reset the initial text 
+reset();
+displayScores();
